@@ -67,7 +67,7 @@ namespace TheatricalPlayersRefactoringKata
             result += String.Format(cultureInfo, "\t\t<p>Amount owed is <em>{0:C}</em></p>\n", Convert.ToDecimal(totalAmount / 100));
             result += String.Format("\t\t<p>You earned <em>{0}</em> credits</p>\n", volumeCredits);
             result += "\t</body>\n";
-            result += "</html>\n";
+            result += "</html>";
             
             return result.Replace("\t", "  ");;
         }
@@ -108,7 +108,7 @@ namespace TheatricalPlayersRefactoringKata
                 // print line for this order
                 //result += String.Format(cultureInfo, "  {0}: {1:C} ({2} seats)\n", play.Name, Convert.ToDecimal(thisAmount / 100), perf.Audience);
                 totalAmount += thisAmount;
-                result += $"${totalAmount}</td></tr>\n";
+                result += String.Format(cultureInfo, "{0:C}</td></tr>\n", Convert.ToDecimal(thisAmount / 100));
             }
         }
     }
