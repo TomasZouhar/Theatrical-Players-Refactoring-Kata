@@ -62,7 +62,7 @@ namespace TheatricalPlayersRefactoringKata
             result += "\t\t<table>\n";
             result += "\t\t\t\t<tr><th>play</th><th>seats</th><th>cost</th></tr>\n";
 
-            CalcPrice(invoice, plays, ref totalAmount, ref volumeCredits, ref result, cultureInfo);
+            PlayPricePrint(invoice, plays, ref totalAmount, ref volumeCredits, ref result, cultureInfo);
             result += "\t\t</table>\n";
             result += String.Format(cultureInfo, "\t\t<p>Amount owed is <em>{0:C}</em></p>\n", Convert.ToDecimal(totalAmount / 100));
             result += String.Format("\t\t<p>You earned <em>{0}</em> credits</p>\n", volumeCredits);
@@ -71,38 +71,44 @@ namespace TheatricalPlayersRefactoringKata
             return result.Replace("\t", "  ");;
         }
 
-        private static void CalcPrice(Invoice invoice, Dictionary<string, Play> plays, ref int totalAmount, ref int volumeCredits, ref string result, CultureInfo cultureInfo)
+        private static void PlayPricePrint(Invoice invoice, Dictionary<string, Play> plays, ref int totalAmount, ref int volumeCredits, ref string result, CultureInfo cultureInfo)
         {
             foreach (var perf in invoice.Performances)
             {
                 var play = plays[perf.PlayID];
                 result += $"\t\t\t\t<tr><td>{play.Name}</td><td>{perf.Audience}</td><td>";
 
-                var playPrice = 0;
-                switch (play.Type)
-                {
-                    case "tragedy":
-                        playPrice = 40000;
-                        if (perf.Audience > 30)
-                        {
-                            playPrice += 1000 * (perf.Audience - 30);
-                        }
-                        break;
-                    case "comedy":
-                        playPrice = 30000;
-                        if (perf.Audience > 20)
-                        {
-                            playPrice += 10000 + 500 * (perf.Audience - 20);
-                        }
-                        playPrice += 300 * perf.Audience;
-                        break;
-                    default:
-                        throw new Exception("unknown type: " + play.Type);
-                }
-                volumeCredits = CalcCredits(volumeCredits, perf, play);            
-                totalAmount += playPrice;
+                var playPrice = PlayPriceCalculate(ref totalAmount, ref volumeCredits, play, perf);
                 result += String.Format(cultureInfo, "{0:C}</td></tr>\n", Convert.ToDecimal(playPrice / 100));
             }
+        }
+
+        private static int PlayPriceCalculate(ref int totalAmount, ref int volumeCredits, Play play, Performance perf)
+        {
+            var playPrice = 0;
+            switch (play.Type)
+            {
+                case "tragedy":
+                    playPrice = 40000;
+                    if (perf.Audience > 30)
+                    {
+                        playPrice += 1000 * (perf.Audience - 30);
+                    }
+                    break;
+                case "comedy":
+                    playPrice = 30000;
+                    if (perf.Audience > 20)
+                    {
+                        playPrice += 10000 + 500 * (perf.Audience - 20);
+                    }
+                    playPrice += 300 * perf.Audience;
+                    break;
+                default:
+                    throw new Exception("unknown type: " + play.Type);
+            }
+            volumeCredits = CalcCredits(volumeCredits, perf, play);            
+            totalAmount += playPrice;
+            return playPrice;
         }
 
         private static int CalcCredits(int volumeCredits, Performance perf, Play play)
