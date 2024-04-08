@@ -40,7 +40,7 @@ namespace TheatricalPlayersRefactoringKata.Tests
                 new Performance("othello", 40)});
             
             StatementPrinter statementPrinter = new StatementPrinter();
-            var result = statementPrinter.Print(invoice, plays);
+            var result = statementPrinter.PrintHTML(invoice, plays);
 
             Approvals.Verify(result);
         }

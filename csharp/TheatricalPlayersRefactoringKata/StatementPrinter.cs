@@ -10,9 +10,9 @@ namespace TheatricalPlayersRefactoringKata
         {
             var totalAmount = 0;
             var volumeCredits = 0;
-            var result = string.Format("<h1>Statement for {0}</h1>\n", invoice.Customer);
+            var result = string.Format("Statement for {0}\n", invoice.Customer);
             CultureInfo cultureInfo = new CultureInfo("en-US");
-            result += "<table>\n";
+            
 
             foreach(var perf in invoice.Performances) 
             {
@@ -56,29 +56,42 @@ namespace TheatricalPlayersRefactoringKata
             var volumeCredits = 0;
             var result = "";
             result += "<html>\n";
-            result += "<body>\n";
-            result += string.Format("Statement for {0}\n", invoice.Customer);
+            result += "\t<body>\n";
+            result += string.Format("\t\t<h1>Statement for {0}</h1>\n", invoice.Customer);
             CultureInfo cultureInfo = new CultureInfo("en-US");
-            
-            result += "<tr><th>play</th><th>seats</th><th>cost</th></tr>\n";
+            result += "\t\t<table>\n";
+            result += "\t\t\t<tr><th>play</th><th>seats</th><th>cost</th></tr>\n";
 
-            foreach(var perf in invoice.Performances) 
+            CalcPrice(invoice, plays, ref totalAmount, ref volumeCredits, ref result, cultureInfo);
+            result += "\t\t</table>\n";
+            result += String.Format(cultureInfo, "<p>Amount owed is <em>{0:C}</em></p>\n", Convert.ToDecimal(totalAmount / 100));
+            result += String.Format("<p>You earned <em>{0}</em> credits</p>\n", volumeCredits);
+            result += "\t</body>\n";
+            result += "</html>\n";
+            return result;
+        }
+
+        private static void CalcPrice(Invoice invoice, Dictionary<string, Play> plays, ref int totalAmount, ref int volumeCredits, ref string result, CultureInfo cultureInfo)
+        {
+            foreach (var perf in invoice.Performances)
             {
                 var play = plays[perf.PlayID];
-                result += $"<tr><td>{play.Name}</td><td>{perf.Audience}</td><td>";
+                result += $"\t\t\t<tr><td>{play.Name}</td><td>{perf.Audience}</td><td>";
 
                 var thisAmount = 0;
-                switch (play.Type) 
+                switch (play.Type)
                 {
                     case "tragedy":
                         thisAmount = 40000;
-                        if (perf.Audience > 30) {
+                        if (perf.Audience > 30)
+                        {
                             thisAmount += 1000 * (perf.Audience - 30);
                         }
                         break;
                     case "comedy":
                         thisAmount = 30000;
-                        if (perf.Audience > 20) {
+                        if (perf.Audience > 20)
+                        {
                             thisAmount += 10000 + 500 * (perf.Audience - 20);
                         }
                         thisAmount += 300 * perf.Audience;
@@ -92,16 +105,10 @@ namespace TheatricalPlayersRefactoringKata
                 if ("comedy" == play.Type) volumeCredits += (int)Math.Floor((decimal)perf.Audience / 5);
 
                 // print line for this order
-                result += String.Format(cultureInfo, "  {0}: {1:C} ({2} seats)\n", play.Name, Convert.ToDecimal(thisAmount / 100), perf.Audience);
+                //result += String.Format(cultureInfo, "  {0}: {1:C} ({2} seats)\n", play.Name, Convert.ToDecimal(thisAmount / 100), perf.Audience);
                 totalAmount += thisAmount;
                 result += $"${totalAmount}</td></tr>";
             }
-            result += "</table>\n";
-            result += String.Format(cultureInfo, "Amount owed is {0:C}\n", Convert.ToDecimal(totalAmount / 100));
-            result += String.Format("You earned {0} credits\n", volumeCredits);
-            result += "</body>\n";
-            result += "</html>\n";
-            return result;
         }
     }
 }
