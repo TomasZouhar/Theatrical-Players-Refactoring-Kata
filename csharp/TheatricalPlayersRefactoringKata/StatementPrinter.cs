@@ -60,15 +60,16 @@ namespace TheatricalPlayersRefactoringKata
             result += string.Format("\t\t<h1>Statement for {0}</h1>\n", invoice.Customer);
             CultureInfo cultureInfo = new CultureInfo("en-US");
             result += "\t\t<table>\n";
-            result += "\t\t\t<tr><th>play</th><th>seats</th><th>cost</th></tr>\n";
+            result += "\t\t\t\t<tr><th>play</th><th>seats</th><th>cost</th></tr>\n";
 
             CalcPrice(invoice, plays, ref totalAmount, ref volumeCredits, ref result, cultureInfo);
             result += "\t\t</table>\n";
-            result += String.Format(cultureInfo, "<p>Amount owed is <em>{0:C}</em></p>\n", Convert.ToDecimal(totalAmount / 100));
-            result += String.Format("<p>You earned <em>{0}</em> credits</p>\n", volumeCredits);
+            result += String.Format(cultureInfo, "\t\t<p>Amount owed is <em>{0:C}</em></p>\n", Convert.ToDecimal(totalAmount / 100));
+            result += String.Format("\t\t<p>You earned <em>{0}</em> credits</p>\n", volumeCredits);
             result += "\t</body>\n";
             result += "</html>\n";
-            return result;
+            
+            return result.Replace("\t", "  ");;
         }
 
         private static void CalcPrice(Invoice invoice, Dictionary<string, Play> plays, ref int totalAmount, ref int volumeCredits, ref string result, CultureInfo cultureInfo)
@@ -76,7 +77,7 @@ namespace TheatricalPlayersRefactoringKata
             foreach (var perf in invoice.Performances)
             {
                 var play = plays[perf.PlayID];
-                result += $"\t\t\t<tr><td>{play.Name}</td><td>{perf.Audience}</td><td>";
+                result += $"\t\t\t\t<tr><td>{play.Name}</td><td>{perf.Audience}</td><td>";
 
                 var thisAmount = 0;
                 switch (play.Type)
@@ -107,7 +108,7 @@ namespace TheatricalPlayersRefactoringKata
                 // print line for this order
                 //result += String.Format(cultureInfo, "  {0}: {1:C} ({2} seats)\n", play.Name, Convert.ToDecimal(thisAmount / 100), perf.Audience);
                 totalAmount += thisAmount;
-                result += $"${totalAmount}</td></tr>";
+                result += $"${totalAmount}</td></tr>\n";
             }
         }
     }
