@@ -68,7 +68,6 @@ namespace TheatricalPlayersRefactoringKata
             result += String.Format("\t\t<p>You earned <em>{0}</em> credits</p>\n", volumeCredits);
             result += "\t</body>\n";
             result += "</html>";
-            
             return result.Replace("\t", "  ");;
         }
 
@@ -79,37 +78,39 @@ namespace TheatricalPlayersRefactoringKata
                 var play = plays[perf.PlayID];
                 result += $"\t\t\t\t<tr><td>{play.Name}</td><td>{perf.Audience}</td><td>";
 
-                var thisAmount = 0;
+                var playPrice = 0;
                 switch (play.Type)
                 {
                     case "tragedy":
-                        thisAmount = 40000;
+                        playPrice = 40000;
                         if (perf.Audience > 30)
                         {
-                            thisAmount += 1000 * (perf.Audience - 30);
+                            playPrice += 1000 * (perf.Audience - 30);
                         }
                         break;
                     case "comedy":
-                        thisAmount = 30000;
+                        playPrice = 30000;
                         if (perf.Audience > 20)
                         {
-                            thisAmount += 10000 + 500 * (perf.Audience - 20);
+                            playPrice += 10000 + 500 * (perf.Audience - 20);
                         }
-                        thisAmount += 300 * perf.Audience;
+                        playPrice += 300 * perf.Audience;
                         break;
                     default:
                         throw new Exception("unknown type: " + play.Type);
                 }
-                // add volume credits
-                volumeCredits += Math.Max(perf.Audience - 30, 0);
-                // add extra credit for every ten comedy attendees
-                if ("comedy" == play.Type) volumeCredits += (int)Math.Floor((decimal)perf.Audience / 5);
-
-                // print line for this order
-                //result += String.Format(cultureInfo, "  {0}: {1:C} ({2} seats)\n", play.Name, Convert.ToDecimal(thisAmount / 100), perf.Audience);
-                totalAmount += thisAmount;
-                result += String.Format(cultureInfo, "{0:C}</td></tr>\n", Convert.ToDecimal(thisAmount / 100));
+                volumeCredits = CalcCredits(volumeCredits, perf, play);            
+                totalAmount += playPrice;
+                result += String.Format(cultureInfo, "{0:C}</td></tr>\n", Convert.ToDecimal(playPrice / 100));
             }
+        }
+
+        private static int CalcCredits(int volumeCredits, Performance perf, Play play)
+        {
+            volumeCredits += Math.Max(perf.Audience - 30, 0);
+            // add extra credit for every ten comedy attendees
+            if ("comedy" == play.Type) volumeCredits += (int)Math.Floor((decimal)perf.Audience / 5);
+            return volumeCredits;
         }
     }
 }
